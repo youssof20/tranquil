@@ -10,17 +10,23 @@
 
   function shouldRedirectToDMs() {
     const path = getCurrentPath();
-    if (!REDIRECT_PATHS.includes(path)) return false;
+    if (!REDIRECT_PATHS.includes(path)) return Promise.resolve(false);
     return new Promise(function (resolve) {
-      chrome.storage.session.get(['pauseUntil'], function (session) {
-        const paused = (session?.pauseUntil || 0) > Date.now();
-        if (paused) { resolve(false); return; }
-        chrome.storage.sync.get({ enabled: true, sites: {} }, function (sync) {
-          if (!sync.enabled || !sync.sites?.instagram?.enabled) { resolve(false); return; }
-          const r = sync.sites.instagram.features?.redirect_to_dms === true;
-          resolve(r);
+      try {
+        if (!chrome.runtime?.id) { resolve(false); return; }
+        chrome.storage.session.get(['pauseUntil'], function (session) {
+          try {
+            if (!chrome.runtime?.id) { resolve(false); return; }
+            const paused = (session?.pauseUntil || 0) > Date.now();
+            if (paused) { resolve(false); return; }
+            chrome.storage.sync.get({ enabled: true, sites: {} }, function (sync) {
+              if (!chrome.runtime?.id) { resolve(false); return; }
+              if (!sync.enabled || !sync.sites?.instagram?.enabled) { resolve(false); return; }
+              resolve(sync.sites.instagram.features?.redirect_to_dms === true);
+            });
+          } catch (_) { resolve(false); }
         });
-      });
+      } catch (_) { resolve(false); }
     });
   }
 

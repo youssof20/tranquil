@@ -112,19 +112,24 @@ function renderActiveSite(settings, tabUrl) {
   const statusDot = document.getElementById('status-dot');
   if (!el) return;
   const siteId = getSiteIdFromUrl(tabUrl);
+  const extensionOn = settings?.enabled !== false;
+  const siteOn = siteId && settings?.sites?.[siteId]?.enabled !== false;
+  const enabled = extensionOn && siteOn;
   if (!siteId) {
     el.textContent = '';
     el.className = 'active-site-inline';
-    if (statusDot) statusDot.classList.remove('status-dot--on-site');
-    return;
+  } else {
+    const name = SITE_DISPLAY_NAMES[siteId] || siteId;
+    el.textContent = enabled ? name : `Off · ${name}`;
+    el.className = 'active-site-inline' + (enabled ? ' active-site-on' : ' active-site-off');
   }
-  const name = SITE_DISPLAY_NAMES[siteId] || siteId;
-  const enabled = settings?.enabled !== false && settings?.sites?.[siteId]?.enabled !== false;
-  el.textContent = enabled ? name : `Off · ${name}`;
-  el.className = 'active-site-inline' + (enabled ? ' active-site-on' : ' active-site-off');
   if (statusDot) {
+    statusDot.classList.remove('status-dot--on-site', 'status-dot--active', 'status-dot--off');
     if (enabled) statusDot.classList.add('status-dot--on-site');
-    else statusDot.classList.remove('status-dot--on-site');
+    else if (siteId && !enabled) statusDot.classList.add('status-dot--off');
+    else statusDot.classList.add('status-dot--active');
+    const name = siteId ? (SITE_DISPLAY_NAMES[siteId] || siteId) : '';
+    statusDot.title = enabled ? `Active on ${name}` : (siteId ? `Off · ${name}` : 'Open a supported site');
   }
 }
 
@@ -227,12 +232,19 @@ function renderPause(settings) {
   if (statusDot) statusDot.classList.add('status-dot--active');
 }
 
+function refreshHeaderStatus(settings) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    renderActiveSite(settings, tabs[0]?.url ?? null);
+  });
+}
+
 function renderMaster(settings) {
   const el = document.getElementById('master-toggle');
   el.checked = settings.enabled !== false;
   el.addEventListener('change', () => {
     settings.enabled = el.checked;
     saveSettings(settings);
+    refreshHeaderStatus(settings);
   });
 }
 
@@ -244,15 +256,6 @@ function renderMode(settings) {
   el.addEventListener('change', () => {
     settings.mode = el.value;
     if (descEl) descEl.textContent = MODE_PRESETS[el.value] || '';
-    saveSettings(settings);
-  });
-}
-
-function renderQuietTitle(settings) {
-  const el = document.getElementById('quiet-title-toggle');
-  el.checked = !!settings.quietTitle;
-  el.addEventListener('change', () => {
-    settings.quietTitle = el.checked;
     saveSettings(settings);
   });
 }
@@ -309,6 +312,7 @@ function renderSites(settings) {
       settings.sites[siteId].enabled = enable;
       featuresDiv.classList.toggle('hidden', !enable);
       saveSettings(settings);
+      refreshHeaderStatus(settings);
     });
 
     card.querySelectorAll('.feature-row input').forEach(input => {
@@ -381,7 +385,6 @@ async function init() {
   renderPause(settings);
   renderMaster(settings);
   renderMode(settings);
-  renderQuietTitle(settings);
   renderSites(settings);
   initOptionsLink();
   renderTimeSaved();

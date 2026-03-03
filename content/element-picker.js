@@ -3,6 +3,14 @@
 (function () {
   let lastContextTarget = null;
 
+  function isContextValid() {
+    try {
+      return !!chrome.runtime?.id;
+    } catch (_) {
+      return false;
+    }
+  }
+
   function getRootNode(el) {
     return el && el.getRootNode ? el.getRootNode() : (el && el.ownerDocument);
   }
@@ -83,16 +91,22 @@
   }
 
   function applyStoredZaps(origin) {
-    chrome.storage.local.get({ customHides: {} }, (data) => {
-      const entries = data.customHides[origin];
-      if (!entries || !Array.isArray(entries)) return;
-      const root = document.body;
-      if (!root) return;
-      entries.forEach(({ path }) => {
-        const el = findElementByPath(root, path);
-        if (el && !el.hasAttribute('data-tranquil-zap-id')) hideElement(el);
+    if (!isContextValid()) return;
+    try {
+      chrome.storage.local.get({ customHides: {} }, (data) => {
+        try {
+          if (!isContextValid()) return;
+          const entries = data?.customHides?.[origin];
+          if (!entries || !Array.isArray(entries)) return;
+          const root = document.body;
+          if (!root) return;
+          entries.forEach(({ path }) => {
+            const el = findElementByPath(root, path);
+            if (el && !el.hasAttribute('data-tranquil-zap-id')) hideElement(el);
+          });
+        } catch (_) { /* context invalidated or other */ }
       });
-    });
+    } catch (_) { /* context invalidated */ }
   }
 
   function onContextMenu(e) {
@@ -114,24 +128,33 @@
     observer.observe(body, { childList: true, subtree: true });
   }
 
-  chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-    if (msg.type !== 'ZAP_ELEMENT') return;
-    if (!lastContextTarget) {
-      sendResponse({ ok: false });
-      return;
-    }
-    const path = pathFromRoot(lastContextTarget);
-    const origin = window.location.origin;
-    chrome.storage.local.get({ customHides: {} }, (data) => {
-      if (!data.customHides[origin]) data.customHides[origin] = [];
-      data.customHides[origin].push({ path });
-      chrome.storage.local.set(data);
-      hideElement(lastContextTarget);
-      sendResponse({ ok: true });
+  try {
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      if (msg.type !== 'ZAP_ELEMENT') return;
+      if (!lastContextTarget) {
+        sendResponse({ ok: false });
+        return true;
+      }
+      try {
+        if (!isContextValid()) { sendResponse({ ok: false }); return true; }
+        const path = pathFromRoot(lastContextTarget);
+        const origin = window.location.origin;
+        chrome.storage.local.get({ customHides: {} }, (data) => {
+          try {
+            if (!isContextValid()) { sendResponse({ ok: false }); return; }
+            if (!data.customHides[origin]) data.customHides[origin] = [];
+            data.customHides[origin].push({ path });
+            chrome.storage.local.set(data);
+            hideElement(lastContextTarget);
+            sendResponse({ ok: true });
+          } catch (_) { sendResponse({ ok: false }); }
+        });
+      } catch (_) { sendResponse({ ok: false }); }
+      return true;
     });
-    return true;
-  });
+  } catch (_) { /* context invalidated at registration */ }
 
+  if (!isContextValid()) return;
   const origin = window.location.origin;
   if (document.body) {
     initContextMenu();
@@ -139,6 +162,7 @@
     observeBodyForNewNodes(origin);
   } else {
     document.addEventListener('DOMContentLoaded', () => {
+      if (!isContextValid()) return;
       initContextMenu();
       applyStoredZaps(origin);
       observeBodyForNewNodes(origin);
