@@ -323,6 +323,32 @@ function renderSites(settings) {
 }
 
 const GITHUB_URL = 'https://github.com/youssof20/tranquil';
+const KOFI_URL = 'https://ko-fi.com/youssof20';
+const THEME_STORAGE_KEY = 'popupTheme';
+
+function applyTheme(theme) {
+  const isLight = theme === 'light';
+  document.body.classList.toggle('theme-light', isLight);
+  const sun = document.getElementById('theme-icon-sun');
+  const moon = document.getElementById('theme-icon-moon');
+  if (sun) sun.classList.toggle('hidden', isLight);
+  if (moon) moon.classList.toggle('hidden', !isLight);
+}
+
+function initTheme() {
+  chrome.storage.local.get({ [THEME_STORAGE_KEY]: 'dark' }, (data) => {
+    applyTheme(data[THEME_STORAGE_KEY] || 'dark');
+  });
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      chrome.storage.local.get({ [THEME_STORAGE_KEY]: 'dark' }, (data) => {
+        const next = (data[THEME_STORAGE_KEY] || 'dark') === 'dark' ? 'light' : 'dark';
+        chrome.storage.local.set({ [THEME_STORAGE_KEY]: next }, () => applyTheme(next));
+      });
+    });
+  }
+}
 
 function initOptionsLink() {
   const opts = document.getElementById('options-link');
@@ -331,6 +357,8 @@ function initOptionsLink() {
   if (zaps) zaps.addEventListener('click', (e) => { e.preventDefault(); chrome.runtime.openOptionsPage(); });
   const github = document.getElementById('github-link');
   if (github) github.addEventListener('click', (e) => { e.preventDefault(); chrome.tabs.create({ url: GITHUB_URL }); });
+  const kofi = document.getElementById('kofi-link');
+  if (kofi) kofi.addEventListener('click', (e) => { e.preventDefault(); chrome.tabs.create({ url: KOFI_URL }); });
 }
 
 function renderTimeSaved() {
@@ -343,6 +371,7 @@ function renderTimeSaved() {
 }
 
 async function init() {
+  initTheme();
   settings = await loadSettings();
   if (!settings.sites) settings.sites = {};
   for (const siteId of SITE_ORDER) await loadRecipe(siteId);

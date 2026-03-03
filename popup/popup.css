@@ -16,6 +16,19 @@
   --transition: 0.25s var(--ease);
 }
 
+/* Light theme */
+body.theme-light {
+  --tranquil-bg: #f5f6f8;
+  --tranquil-surface: rgba(0, 0, 0, 0.03);
+  --tranquil-border: rgba(0, 0, 0, 0.1);
+  --tranquil-text: #1a1d21;
+  --tranquil-text-muted: #536471;
+  --tranquil-teal: #0891b2;
+  --tranquil-blue: #0284c7;
+  --tranquil-pause: #ca8a04;
+  --tranquil-success: #059669;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -54,6 +67,45 @@ body {
   justify-content: space-between;
   gap: 10px;
   position: relative;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.header-icon-btn {
+  padding: 6px;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: var(--tranquil-text-muted);
+  cursor: pointer;
+  border-radius: var(--tranquil-radius-sm);
+  transition: color var(--transition), background var(--transition);
+}
+
+.header-icon-btn:hover {
+  color: var(--tranquil-teal);
+  background: var(--tranquil-surface);
+}
+
+.theme-icon {
+  display: block;
+}
+
+.theme-icon.hidden {
+  display: none !important;
+}
+
+body.theme-light #theme-icon-sun {
+  display: none !important;
+}
+
+body.theme-light #theme-icon-moon {
+  display: block !important;
 }
 
 .status-area {
@@ -589,6 +641,26 @@ body {
 
 .time-saved:empty {
   display: none;
+}
+
+.footer-kofi {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--tranquil-text-muted);
+  text-decoration: none;
+  margin-top: 6px;
+  margin-left: 12px;
+  transition: color var(--transition);
+}
+
+.footer-kofi:hover {
+  color: #ff5e5b;
+}
+
+.kofi-heart {
+  color: #ff5e5b;
+  font-size: 0.9em;
 }
 
 .privacy {
