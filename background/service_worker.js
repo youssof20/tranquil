@@ -119,6 +119,12 @@ async function updateDnrRules() {
         id: id++,
         priority: 1,
         action: { type: 'redirect', redirect: { url: dmsUrl } },
+        condition: { regexFilter: '^https://[^/]*instagram\\.com/home(\\?.*)?$', resourceTypes: ['main_frame'] }
+      });
+      rules.push({
+        id: id++,
+        priority: 1,
+        action: { type: 'redirect', redirect: { url: dmsUrl } },
         condition: { regexFilter: '^https://[^/]*instagram\\.com/reels', resourceTypes: ['main_frame'] }
       });
       rules.push({
