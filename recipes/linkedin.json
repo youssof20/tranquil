@@ -1,0 +1,27 @@
+{
+  "defaultFeatures": {
+    "hide_feed": true,
+    "hide_sidebar": true
+  },
+  "meta": {
+    "id": "linkedin",
+    "name": "LinkedIn",
+    "match": "*://*.linkedin.com/*",
+    "version": "1"
+  },
+  "features": [
+    { "id": "hide_feed", "label": "Hide feed", "group": "Feed" },
+    { "id": "hide_sidebar", "label": "Hide right sidebar", "group": "Feed" }
+  ],
+  "rules": [
+    { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
+      ".feed-shared-update-v2",
+      "div[data-testid=\"mainFeed\"]",
+      "div[componentkey*=\"mainFeed\"]",
+      ".feed-new-update-pill"
+    ]},
+    { "featureId": "hide_sidebar", "attribute": "data-tranquil-hide-sidebar", "selectors": [
+      ".scaffold-layout__aside"
+    ]}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "defaultFeatures": {
+    "hide_feed": true,
+    "hide_sidebar": true
+  },
+  "meta": {
+    "id": "facebook",
+    "name": "Facebook",
+    "match": "*://*.facebook.com/*",
+    "version": "1"
+  },
+  "features": [
+    { "id": "hide_feed", "label": "Hide feed", "group": "Feed" },
+    { "id": "hide_sidebar", "label": "Hide right sidebar", "group": "Feed" }
+  ],
+  "rules": [
+    { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
+      "[role=\"main\"]",
+      "div[data-pagelet=\"FeedStream\"]"
+    ]},
+    { "featureId": "hide_sidebar", "attribute": "data-tranquil-hide-sidebar", "selectors": [
+      "[data-pagelet=\"RightColumn\"]"
+    ]}
+  ]
+}

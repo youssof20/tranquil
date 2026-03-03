@@ -1,0 +1,2 @@
+/* Base engine styles. Recipe CSS is injected by engine.js. */
+/* No global body/background overrides — they override site themes (YouTube/Reddit dark) and cause washed-out colors. */

@@ -1,0 +1,83 @@
+{
+  "manifest_version": 3,
+  "name": "Tranquil – All-in-One Distraction Remover",
+  "short_name": "Tranquil",
+  "version": "1.0.0",
+  "description": "Hide feeds, shorts, comments & distractions on YouTube, Reddit, Instagram, X, Facebook & LinkedIn. One extension, consistent UI, optional Pause & Deep Breath.",
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "scripting",
+    "contextMenus",
+    "tabs"
+  ],
+  "optional_host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.reddit.com/*",
+    "*://*.instagram.com/*",
+    "*://*.twitter.com/*",
+    "*://*.x.com/*",
+    "*://*.facebook.com/*",
+    "*://*.linkedin.com/*"
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    },
+    "default_title": "Tranquil",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content/engine.js", "content/element-picker.js", "sites/youtube.js"],
+      "css": ["content/engine.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.reddit.com/*"],
+      "js": ["content/engine.js", "content/element-picker.js", "sites/reddit.js"],
+      "css": ["content/engine.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.instagram.com/*"],
+      "js": ["content/engine.js", "content/element-picker.js", "sites/instagram.js"],
+      "css": ["content/engine.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
+      "js": ["content/engine.js", "content/element-picker.js", "sites/twitter-x.js"],
+      "css": ["content/engine.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.facebook.com/*"],
+      "js": ["content/engine.js", "content/element-picker.js", "sites/facebook.js"],
+      "css": ["content/engine.css"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.linkedin.com/*"],
+      "js": ["content/engine.js", "content/element-picker.js", "sites/linkedin.js"],
+      "css": ["content/engine.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["recipes/*.json", "pages/*.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

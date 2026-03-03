@@ -1,0 +1,48 @@
+{
+  "defaultFeatures": {
+    "hide_feed": true,
+    "hide_sidebar": true,
+    "hide_comments": false,
+    "hide_trending": false
+  },
+  "meta": {
+    "id": "reddit",
+    "name": "Reddit",
+    "match": "*://*.reddit.com/*",
+    "version": "1"
+  },
+  "features": [
+    { "id": "hide_feed", "label": "Hide main feed", "group": "Feed" },
+    { "id": "hide_sidebar", "label": "Hide sidebar", "group": "Feed" },
+    { "id": "hide_comments", "label": "Hide comments", "group": "Comments" },
+    { "id": "hide_trending", "label": "Hide r/all & r/popular", "group": "Extras" }
+  ],
+  "rules": [
+    { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
+      "shreddit-feed",
+      "[slot=\"feed\"]",
+      "[slot=\"hero\"]",
+      "faceplate-tracker[noun=\"feed\"]",
+      "faceplate-tracker[noun=\"popular\"]",
+      "shreddit-aspect-ratio",
+      "shreddit-carousel",
+      ".PostsList",
+      "iframe[name*='subreddit\":\"\"'] ~ div #siteTable"
+    ]},
+    { "featureId": "hide_sidebar", "attribute": "data-tranquil-hide-sidebar", "selectors": [
+      "reddit-sidebar",
+      "#right-sidebar-container"
+    ]},
+    { "featureId": "hide_comments", "attribute": "data-tranquil-hide-comments", "selectors": [
+      "shreddit-comment-tree",
+      "faceplate-tracker[noun=\"comments\"]",
+      ".commentarea",
+      ".CommentTree",
+      ".CommentsPage__tools"
+    ]},
+    { "featureId": "hide_trending", "attribute": "data-tranquil-hide-trending", "selectors": [
+      "a[href*=\"/r/popular\"]",
+      "a[href*=\"/r/all\"]"
+    ]}
+  ]
+}

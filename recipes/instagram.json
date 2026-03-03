@@ -1,0 +1,32 @@
+{
+  "defaultFeatures": {
+    "hide_feed": true,
+    "redirect_to_dms": false,
+    "hide_reels": true,
+    "hide_explore": true
+  },
+  "meta": {
+    "id": "instagram",
+    "name": "Instagram",
+    "match": "*://*.instagram.com/*",
+    "version": "1"
+  },
+  "features": [
+    { "id": "hide_feed", "label": "Hide feed", "group": "Feed" },
+    { "id": "redirect_to_dms", "label": "Messages only (redirect home/reels/explore to DMs)", "group": "Extras" },
+    { "id": "hide_reels", "label": "Block Reels", "group": "Extras" },
+    { "id": "hide_explore", "label": "Block Explore", "group": "Extras" }
+  ],
+  "rules": [
+    { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
+      "main article",
+      "[data-pagelet=\"FeedPage\"]"
+    ]},
+    { "featureId": "hide_reels", "attribute": "data-tranquil-hide-reels", "selectors": [
+      "a[href*=\"/reels\"]"
+    ]},
+    { "featureId": "hide_explore", "attribute": "data-tranquil-hide-explore", "selectors": [
+      "a[href*=\"/explore\"]"
+    ]}
+  ]
+}

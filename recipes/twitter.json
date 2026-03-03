@@ -1,0 +1,24 @@
+{
+  "defaultFeatures": {
+    "hide_feed": true,
+    "hide_trending": false
+  },
+  "meta": {
+    "id": "twitter",
+    "name": "X / Twitter",
+    "match": "*://*.twitter.com/*",
+    "version": "1"
+  },
+  "features": [
+    { "id": "hide_feed", "label": "Hide For You feed", "group": "Feed" },
+    { "id": "hide_trending", "label": "Hide trending", "group": "Extras" }
+  ],
+  "rules": [
+    { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
+      "[data-testid=\"primaryColumn\"] [role=\"feed\"]"
+    ]},
+    { "featureId": "hide_trending", "attribute": "data-tranquil-hide-trending", "selectors": [
+      "[data-testid=\"trend\"]"
+    ]}
+  ]
+}

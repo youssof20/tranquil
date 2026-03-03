@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tranquil – Options</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; }
+    h1 { font-size: 1.5rem; }
+    p { color: #555; }
+    .export-import { margin-top: 24px; }
+    textarea { width: 100%; height: 80px; font-size: 12px; }
+    button { margin-top: 8px; padding: 8px 16px; cursor: pointer; }
+    .zaps-section { margin-top: 24px; }
+    .result { margin-left: 8px; color: #0a0; }
+  </style>
+</head>
+<body>
+  <h1>Tranquil – Options</h1>
+  <p>Tranquil runs entirely on your device. No data is sent to any server.</p>
+  <section class="zaps-section">
+    <h2>Manage Zaps</h2>
+    <p>Custom hides (from right-click → “Tranquil: Hide this element”) are stored per site. Clear them if you hid something by mistake.</p>
+    <button id="clear-zaps-btn">Clear all custom hides</button>
+    <span id="clear-zaps-result" class="result"></span>
+  </section>
+  <section class="export-import">
+    <h2>Export / Import settings</h2>
+    <p>Copy your config to restore it on another device.</p>
+    <button id="copy-btn">Copy config</button>
+    <br>
+    <textarea id="import-area" placeholder="Paste config here and click Import"></textarea>
+    <br>
+    <button id="import-btn">Import</button>
+  </section>
+  <script src="options.js"></script>
+</body>
+</html>
