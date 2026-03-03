@@ -4,8 +4,12 @@
   const DMS_URL = 'https://www.instagram.com/direct/inbox/';
   const REDIRECT_PATHS = ['', '/', '/reels', '/reels/', '/explore', '/explore/', '/home'];
 
+  function getCurrentPath() {
+    return (window.location.pathname || '/').replace(/\/$/, '') || '';
+  }
+
   function shouldRedirectToDMs() {
-    const path = (window.location.pathname || '/').replace(/\/$/, '') || '';
+    const path = getCurrentPath();
     if (!REDIRECT_PATHS.includes(path)) return false;
     return new Promise(function (resolve) {
       chrome.storage.session.get(['pauseUntil'], function (session) {
@@ -20,12 +24,50 @@
     });
   }
 
-  function tryRedirect() {
+  function checkAndRedirect() {
     shouldRedirectToDMs().then(function (go) {
       if (go) window.location.replace(DMS_URL);
     });
   }
 
-  tryRedirect();
-  window.addEventListener('popstate', tryRedirect);
+  // 1. Run on initial load
+  checkAndRedirect();
+
+  // 2. SPA: Instagram uses pushState/replaceState — they don't fire popstate. Patch them.
+  var origPushState = history.pushState;
+  var origReplaceState = history.replaceState;
+  history.pushState = function () {
+    origPushState.apply(this, arguments);
+    checkAndRedirect();
+  };
+  history.replaceState = function () {
+    origReplaceState.apply(this, arguments);
+    checkAndRedirect();
+  };
+
+  // 3. Back/forward
+  window.addEventListener('popstate', checkAndRedirect);
+
+  // 4. DOM updates (e.g. in-app nav that doesn't update history immediately, or race conditions)
+  var redirectTimeout = null;
+  function scheduleRedirectCheck() {
+    if (redirectTimeout) clearTimeout(redirectTimeout);
+    redirectTimeout = setTimeout(function () {
+      redirectTimeout = null;
+      checkAndRedirect();
+    }, 150);
+  }
+
+  function observeBody() {
+    var body = document.body;
+    if (!body) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', observeBody);
+      }
+      return;
+    }
+    var observer = new MutationObserver(scheduleRedirectCheck);
+    observer.observe(body, { childList: true, subtree: true });
+  }
+  observeBody();
 })();
