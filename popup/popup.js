@@ -6,10 +6,20 @@ const SITE_ORIGINS = {
   instagram: ['*://*.instagram.com/*'],
   twitter: ['*://*.twitter.com/*', '*://*.x.com/*'],
   facebook: ['*://*.facebook.com/*'],
-  linkedin: ['*://*.linkedin.com/*']
+  linkedin: ['*://*.linkedin.com/*'],
+  amazon: [
+    '*://*.amazon.com/*',
+    '*://*.amazon.co.uk/*',
+    '*://*.amazon.ca/*',
+    '*://*.amazon.de/*',
+    '*://*.amazon.fr/*',
+    '*://*.amazon.it/*',
+    '*://*.amazon.es/*',
+    '*://*.amazon.co.jp/*'
+  ]
 };
 
-const SITE_ORDER = ['youtube', 'reddit', 'instagram', 'twitter', 'facebook', 'linkedin'];
+const SITE_ORDER = ['youtube', 'reddit', 'instagram', 'twitter', 'facebook', 'linkedin', 'amazon'];
 
 const SITE_DISPLAY_NAMES = {
   youtube: 'YouTube',
@@ -17,7 +27,8 @@ const SITE_DISPLAY_NAMES = {
   instagram: 'Instagram',
   twitter: 'X',
   facebook: 'Facebook',
-  linkedin: 'LinkedIn'
+  linkedin: 'LinkedIn',
+  amazon: 'Amazon'
 };
 
 let recipes = {};
@@ -61,7 +72,8 @@ function isSupportedUrl(url) {
     const u = new URL(url);
     const h = u.hostname;
     return h.includes('youtube.com') || h.includes('reddit.com') || h.includes('instagram.com') ||
-      h.includes('twitter.com') || h.includes('x.com') || h.includes('facebook.com') || h.includes('linkedin.com');
+      h.includes('twitter.com') || h.includes('x.com') || h.includes('facebook.com') || h.includes('linkedin.com') ||
+      h.includes('amazon.');
   } catch (_) { return false; }
 }
 
@@ -97,6 +109,7 @@ function getSiteIdFromUrl(url) {
     if (h.includes('twitter.com') || h.includes('x.com')) return 'twitter';
     if (h.includes('facebook.com') || h.includes('fb.com') || h.includes('fb.me')) return 'facebook';
     if (h.includes('linkedin.com')) return 'linkedin';
+    if (h.includes('amazon.')) return 'amazon';
   } catch (_) {}
   return null;
 }

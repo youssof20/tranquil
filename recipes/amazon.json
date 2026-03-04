@@ -1,0 +1,55 @@
+{
+  "defaultFeatures": {
+    "hide_sponsored": true,
+    "hide_recommendations": true,
+    "hide_recently_viewed": true
+  },
+  "meta": {
+    "id": "amazon",
+    "name": "Amazon",
+    "match": "*://*.amazon.*/*",
+    "version": "1"
+  },
+  "features": [
+    { "id": "hide_sponsored", "label": "Hide Sponsored Products", "group": "Results" },
+    { "id": "hide_recommendations", "label": "Hide Recommendations", "group": "Product" },
+    { "id": "hide_recently_viewed", "label": "Hide Recently Viewed", "group": "Product" },
+    { "id": "grayscale", "label": "Grayscale Mode", "group": "Extras" }
+  ],
+  "rules": [
+    { "featureId": "hide_sponsored", "attribute": "data-tranquil-hide-sponsored", "selectors": [
+      ".s-sponsored-result-list-column",
+      "[data-component-type=\"sp-quic-results-list-vertical\"]",
+      ".s-result-item:has(.s-sponsored-label-text)",
+      ".s-result-item:has(span:contains(\"Sponsored\"))",
+      "div[data-component-type=\"sp-quic-atf-v2\"]",
+      "div[data-component-type=\"sp-quic-btf-v2\"]",
+      "#sp_detail",
+      "#sp_detail2",
+      "#sp_detail_v2",
+      "#sp_detail_v3"
+    ]},
+    { "featureId": "hide_recommendations", "attribute": "data-tranquil-hide-recommendations", "selectors": [
+      ".p13n-sc-shoveler",
+      "#vse-recommendations-container",
+      "#similarities_feature_div",
+      "#purchase-similarities_feature_div",
+      "#customers-who-bought-this-item-also-bought-shoveler_feature_div",
+      "#desktop-dp-sims_purchase-similarities-base",
+      "#desktop-dp-sims_viewed-similarities-base",
+      "#session-similarities_feature_div",
+      "#sponsoredProducts2_feature_div",
+      "#HLCXComparisonWidget_feature_div",
+      ".HLCX-Comparison-Table",
+      "#bundle_feature_div",
+      "#ape_Gateway_right-2_desktop_placement",
+      ".bucket:has(h2:contains(\"Customers also bought\"))"
+    ]},
+    { "featureId": "hide_recently_viewed", "attribute": "data-tranquil-hide-recently-viewed", "selectors": [
+      "#rhf",
+      "#rhf-container",
+      "#desktop-rhf",
+      "#recently-viewed-items"
+    ]}
+  ]
+}

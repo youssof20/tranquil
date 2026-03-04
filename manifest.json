@@ -18,7 +18,15 @@
     "*://*.twitter.com/*",
     "*://*.x.com/*",
     "*://*.facebook.com/*",
-    "*://*.linkedin.com/*"
+    "*://*.linkedin.com/*",
+    "*://*.amazon.com/*",
+    "*://*.amazon.co.uk/*",
+    "*://*.amazon.ca/*",
+    "*://*.amazon.de/*",
+    "*://*.amazon.fr/*",
+    "*://*.amazon.it/*",
+    "*://*.amazon.es/*",
+    "*://*.amazon.co.jp/*"
   ],
   "background": {
     "service_worker": "background/service_worker.js"
@@ -34,38 +42,24 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/*"],
-      "js": ["content/engine.js", "content/element-picker.js", "sites/youtube.js"],
-      "css": ["content/engine.css"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://*.reddit.com/*"],
-      "js": ["content/engine.js", "content/element-picker.js", "sites/reddit.js"],
-      "css": ["content/engine.css"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://*.instagram.com/*"],
-      "js": ["content/engine.js", "content/element-picker.js", "sites/instagram.js"],
-      "css": ["content/engine.css"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
-      "js": ["content/engine.js", "content/element-picker.js", "sites/twitter-x.js"],
-      "css": ["content/engine.css"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://*.facebook.com/*"],
-      "js": ["content/engine.js", "content/element-picker.js", "sites/facebook.js"],
-      "css": ["content/engine.css"],
-      "run_at": "document_start"
-    },
-    {
-      "matches": ["*://*.linkedin.com/*"],
-      "js": ["content/engine.js", "content/element-picker.js", "sites/linkedin.js"],
+      "matches": [
+        "*://*.youtube.com/*",
+        "*://*.reddit.com/*",
+        "*://*.instagram.com/*",
+        "*://*.twitter.com/*",
+        "*://*.x.com/*",
+        "*://*.facebook.com/*",
+        "*://*.linkedin.com/*",
+        "*://*.amazon.com/*",
+        "*://*.amazon.co.uk/*",
+        "*://*.amazon.ca/*",
+        "*://*.amazon.de/*",
+        "*://*.amazon.fr/*",
+        "*://*.amazon.it/*",
+        "*://*.amazon.es/*",
+        "*://*.amazon.co.jp/*"
+      ],
+      "js": ["content/engine.js", "content/element-picker.js"],
       "css": ["content/engine.css"],
       "run_at": "document_start"
     }
@@ -76,7 +70,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["recipes/*.json", "pages/*.html"],
+      "resources": ["recipes/*.json"],
       "matches": ["<all_urls>"]
     }
   ]

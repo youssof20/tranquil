@@ -13,6 +13,7 @@
     if (h.includes('twitter.com') || h.includes('x.com')) return 'twitter';
     if (h.includes('facebook.com') || h.includes('fb.com') || h.includes('fb.me')) return 'facebook';
     if (h.includes('linkedin.com')) return 'linkedin';
+    if (h.includes('amazon.')) return 'amazon';
     return null;
   }
 
@@ -88,7 +89,8 @@
   function setupQuietTitle() {
     const stripNotifications = () => {
       const t = document.title;
-      const cleaned = t.replace(/^\s*\(\d+\)\s*/, '').trim();
+      // Strip numbers like (3) or dots like • at the start of the title
+      const cleaned = t.replace(/^\s*(\(\d+\)|•|[\(]\d+[\)])\s*/, '').trim();
       if (cleaned && cleaned !== t) document.title = cleaned;
     };
     stripNotifications();
