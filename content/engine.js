@@ -27,22 +27,33 @@
   function applyRecipe(recipe, settings, siteId, rootEl) {
     if (!recipe || !recipe.rules) return;
     const site = settings?.sites?.[siteId];
-    if (!settings?.enabled || !site?.enabled) {
+    const isEnabled = settings?.enabled && site?.enabled !== false;
+
+    if (!isEnabled) {
       for (const rule of recipe.rules) {
         const attr = rule.attribute || ('data-tranquil-' + rule.featureId.replace(/_/g, '-'));
         rootEl.removeAttribute(attr);
       }
+      rootEl.removeAttribute('data-tranquil-grayscale');
       const style = document.getElementById('tranquil-recipe-style');
       if (style) style.textContent = '';
       return;
     }
+
     const defaults = recipe.defaultFeatures || {};
-    const features = { ...defaults, ...(site.features || {}) };
-    const enabled = (id) => features[id] !== false;
+    const features = { ...defaults, ...(site?.features || {}) };
+    const isFeatureEnabled = (id) => features[id] !== false;
+
+    // Apply Grayscale
+    if (settings.grayscaleMode || features.grayscale) {
+      rootEl.setAttribute('data-tranquil-grayscale', 'true');
+    } else {
+      rootEl.removeAttribute('data-tranquil-grayscale');
+    }
 
     for (const rule of recipe.rules) {
       const attr = rule.attribute || ('data-tranquil-' + rule.featureId.replace(/_/g, '-'));
-      if (enabled(rule.featureId)) rootEl.setAttribute(attr, 'true');
+      if (isFeatureEnabled(rule.featureId)) rootEl.setAttribute(attr, 'true');
       else rootEl.removeAttribute(attr);
     }
 
@@ -53,8 +64,12 @@
       (document.head || root).appendChild(style);
     }
     let css = '';
+
+    // Grayscale CSS
+    css += 'html[data-tranquil-grayscale="true"] { filter: grayscale(1) !important; }\n';
+
     for (const rule of recipe.rules) {
-      if (!enabled(rule.featureId)) continue;
+      if (!isFeatureEnabled(rule.featureId)) continue;
       const attr = rule.attribute || ('data-tranquil-' + rule.featureId.replace(/_/g, '-'));
       if (rule.selectors && rule.selectors.length) {
         const sel = rule.selectors.map(s => 'html[' + attr + '="true"] ' + s.trim()).join(',\n');
@@ -63,7 +78,7 @@
     }
     if (recipe.reflow) {
       for (const reflow of recipe.reflow) {
-        const allHidden = reflow.whenHidden.every(id => enabled(id));
+        const allHidden = reflow.whenHidden.every(id => isFeatureEnabled(id));
         if (allHidden && reflow.css) css += reflow.css + '\n';
       }
     }
@@ -98,7 +113,11 @@
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg.type === 'UPDATE_ATTRIBUTES' && msg.payload) {
       const siteId = getSiteId();
-      if (!siteId) { sendResponse({ ok: false }); return true; }
+      if (!siteId) {
+        // If we're on an unsupported site, we still want to acknowledge the message
+        sendResponse({ ok: true, unsupported: true });
+        return true;
+      }
       if (!currentRecipe) {
         loadRecipe(siteId, (recipe) => {
           currentRecipe = recipe;
@@ -124,36 +143,39 @@
     }
   });
 
-  function injectShadowStyle(hostSelector, css) {
-    const host = document.querySelector(hostSelector);
-    if (host?.shadowRoot) {
-      let style = host.shadowRoot.getElementById('tranquil-shadow-style');
-      if (!style) {
-        style = document.createElement('style');
-        style.id = 'tranquil-shadow-style';
-        host.shadowRoot.appendChild(style);
-      }
-      style.textContent = css.replace(/html\[(data-tranquil-[^\]]+)\]/g, ':host-context(html[$1])');
-    }
-  }
-
   function applyShadowStyles(recipe, settings, siteId, rootEl) {
     if (!recipe?.rules) return;
     const site = settings?.sites?.[siteId];
-    if (!settings?.enabled || !site?.enabled) return;
+    const isEnabled = settings?.enabled && site?.enabled !== false;
+    if (!isEnabled) return;
+
     const defaults = recipe.defaultFeatures || {};
-    const features = { ...defaults, ...(site.features || {}) };
-    const enabled = (id) => features[id] !== false;
+    const features = { ...defaults, ...(site?.features || {}) };
+    const isFeatureEnabled = (id) => features[id] !== false;
+
     let css = '';
     for (const rule of recipe.rules) {
-      if (!enabled(rule.featureId) || !rule.selectors?.length) continue;
+      if (!isFeatureEnabled(rule.featureId) || !rule.selectors?.length) continue;
       const attr = rule.attribute || ('data-tranquil-' + rule.featureId.replace(/_/g, '-'));
-      const sel = rule.selectors.map(s => 'html[' + attr + '="true"] ' + s.trim()).join(', ');
+      const sel = rule.selectors.map(s => ':host-context(html[' + attr + '="true"]) ' + s.trim()).join(', ');
       css += sel + ' { display: none !important; }\n';
     }
     if (css) {
-      injectShadowStyle('ytd-app', css);
-      injectShadowStyle('shreddit-app', css);
+      const shadowHosts = ['ytd-app', 'shreddit-app', 'reddit-sidebar', 'faceplate-tracker'];
+      for (const hostName of shadowHosts) {
+        const hosts = document.querySelectorAll(hostName);
+        for (const host of hosts) {
+          if (host.shadowRoot) {
+            let style = host.shadowRoot.getElementById('tranquil-shadow-style');
+            if (!style) {
+              style = document.createElement('style');
+              style.id = 'tranquil-shadow-style';
+              host.shadowRoot.appendChild(style);
+            }
+            style.textContent = css;
+          }
+        }
+      }
     }
   }
 
@@ -195,5 +217,24 @@
     ]).then(([sync, session]) => runWithSettings(sync, session)).catch(() => {});
   });
 
+  function setupUrlObserver() {
+    let lastUrl = window.location.href;
+    let timeout = null;
+    const observer = new MutationObserver(() => {
+      if (timeout) return;
+      timeout = requestAnimationFrame(() => {
+        const url = window.location.href;
+        if (url !== lastUrl) {
+          lastUrl = url;
+          run();
+        }
+        timeout = null;
+      });
+    });
+    // Limit observation to head (for title/meta) and body child changes
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
   run();
+  setupUrlObserver();
 })();

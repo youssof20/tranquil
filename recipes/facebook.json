@@ -10,16 +10,29 @@
     "version": "1"
   },
   "features": [
-    { "id": "hide_feed", "label": "Hide feed", "group": "Feed" },
-    { "id": "hide_sidebar", "label": "Hide right sidebar", "group": "Feed" }
+    { "id": "hide_feed", "label": "Hide Home Feed", "group": "Feed" },
+    { "id": "hide_sidebar", "label": "Hide Right Sidebar", "group": "Feed" },
+    { "id": "hide_stories", "label": "Hide Stories", "group": "Feed" },
+    { "id": "hide_suggestions", "label": "Hide Suggested Content", "group": "Feed" },
+    { "id": "grayscale", "label": "Grayscale Mode", "group": "Extras" }
   ],
   "rules": [
     { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
       "[role=\"main\"]",
-      "div[data-pagelet=\"FeedStream\"]"
+      "div[data-pagelet=\"FeedStream\"]",
+      "div#ssrb_feed_start"
     ]},
     { "featureId": "hide_sidebar", "attribute": "data-tranquil-hide-sidebar", "selectors": [
-      "[data-pagelet=\"RightColumn\"]"
+      "[data-pagelet=\"RightColumn\"]",
+      "div[role=\"complementary\"]"
+    ]},
+    { "featureId": "hide_stories", "attribute": "data-tranquil-hide-stories", "selectors": [
+      "div[data-pagelet=\"Stories\"]",
+      "div[aria-label=\"Stories\"]"
+    ]},
+    { "featureId": "hide_suggestions", "attribute": "data-tranquil-hide-suggestions", "selectors": [
+      "div:has(> span:contains(\"Suggested for you\"))",
+      "div:has(> span:contains(\"Reels and short videos\"))"
     ]}
   ]
 }

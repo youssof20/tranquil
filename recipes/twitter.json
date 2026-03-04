@@ -10,15 +10,28 @@
     "version": "1"
   },
   "features": [
-    { "id": "hide_feed", "label": "Hide For You feed", "group": "Feed" },
-    { "id": "hide_trending", "label": "Hide trending", "group": "Extras" }
+    { "id": "hide_feed", "label": "Hide Home Feed (All)", "group": "Feed" },
+    { "id": "hide_for_you", "label": "Hide 'For You' Feed", "group": "Feed" },
+    { "id": "hide_trending", "label": "Hide Trending Sidebar", "group": "Extras" },
+    { "id": "hide_who_to_follow", "label": "Hide 'Who to follow'", "group": "Extras" },
+    { "id": "grayscale", "label": "Grayscale Mode", "group": "Extras" }
   ],
   "rules": [
     { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
+      "[data-testid=\"primaryColumn\"] section[role=\"region\"]",
       "[data-testid=\"primaryColumn\"] [role=\"feed\"]"
     ]},
+    { "featureId": "hide_for_you", "attribute": "data-tranquil-hide-for-you", "selectors": [
+      "[data-testid=\"primaryColumn\"] [role=\"feed\"]:has(a[href*=\"/home\"][aria-selected=\"true\"]:not([href*=\"/following\"]))",
+      "nav[role=\"navigation\"] a[href*=\"/home\"][aria-selected=\"true\"]:not([href*=\"/following\"]) + div section[role=\"region\"]"
+    ]},
     { "featureId": "hide_trending", "attribute": "data-tranquil-hide-trending", "selectors": [
-      "[data-testid=\"trend\"]"
+      "[data-testid=\"sidebarColumn\"] [data-testid=\"trend\"]",
+      "[data-testid=\"sidebarColumn\"] section:has([data-testid=\"trend\"])"
+    ]},
+    { "featureId": "hide_who_to_follow", "attribute": "data-tranquil-hide-who-to-follow", "selectors": [
+      "[data-testid=\"sidebarColumn\"] aside[role=\"complementary\"]:has(span:contains(\"Who to follow\"))",
+      "[data-testid=\"UserCell\"]"
     ]}
   ]
 }

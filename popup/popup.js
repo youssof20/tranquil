@@ -246,6 +246,15 @@ function renderMaster(settings) {
     saveSettings(settings);
     refreshHeaderStatus(settings);
   });
+
+  const grayscaleEl = document.getElementById('grayscale-toggle');
+  if (grayscaleEl) {
+    grayscaleEl.checked = settings.grayscaleMode === true;
+    grayscaleEl.addEventListener('change', () => {
+      settings.grayscaleMode = grayscaleEl.checked;
+      saveSettings(settings);
+    });
+  }
 }
 
 function renderMode(settings) {
@@ -260,33 +269,53 @@ function renderMode(settings) {
   });
 }
 
-function renderSites(settings) {
+function renderSites(settings, currentSiteId) {
   const list = document.getElementById('sites-list');
   list.innerHTML = '';
   const sites = settings.sites || {};
-  for (const siteId of SITE_ORDER) {
+
+  // Sort sites so the current one is first
+  const sortedOrder = [...SITE_ORDER];
+  if (currentSiteId && sortedOrder.includes(currentSiteId)) {
+    sortedOrder.splice(sortedOrder.indexOf(currentSiteId), 1);
+    sortedOrder.unshift(currentSiteId);
+  }
+
+  for (const siteId of sortedOrder) {
     const recipe = recipes[siteId];
-    const name = recipe?.meta?.name || siteId;
+    if (!recipe) continue;
+    const name = SITE_DISPLAY_NAMES[siteId] || siteId;
     const site = sites[siteId] || { enabled: true, features: {} };
+    const isCurrent = siteId === currentSiteId;
+
     const card = document.createElement('div');
-    card.className = 'site-card';
+    card.className = 'site-card' + (isCurrent ? ' site-card--current' : '');
     const defaults = recipe?.defaultFeatures || {};
     const features = { ...defaults, ...(site.features || {}) };
+
     card.innerHTML = `
       <div class="site-header" data-site="${siteId}">
-        <span class="site-name">${name}</span>
-        <input type="checkbox" class="site-toggle" data-site="${siteId}" ${site.enabled !== false ? 'checked' : ''}>
+        <div class="site-header-left">
+          <span class="site-name">${name}</span>
+          ${isCurrent ? '<span class="current-badge">Current Site</span>' : ''}
+        </div>
+        <div class="site-header-right">
+          <input type="checkbox" class="site-toggle" data-site="${siteId}" ${site.enabled !== false ? 'checked' : ''}>
+          <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
       </div>
       <div class="site-features ${site.enabled === false ? 'hidden' : ''}" data-features="${siteId}">
         ${(recipe?.features || []).map(f => `
           <label class="feature-row">
-            <span>${f.label}</span>
-            <input type="checkbox" data-site="${siteId}" data-feature="${f.id}" ${features[f.id] !== false ? 'checked' : ''}>
+            <span class="feature-label">${f.label}</span>
+            <input type="checkbox" class="feature-toggle" data-site="${siteId}" data-feature="${f.id}" ${features[f.id] !== false ? 'checked' : ''}>
           </label>
         `).join('')}
       </div>
     `;
-    card.classList.add('is-collapsed');
+
+    // Only collapse if it's NOT the current site
+    if (!isCurrent) card.classList.add('is-collapsed');
     list.appendChild(card);
 
     const header = card.querySelector('.site-header');
@@ -294,18 +323,18 @@ function renderSites(settings) {
     const featuresDiv = card.querySelector('.site-features');
 
     header.addEventListener('click', (e) => {
-      if (e.target === siteToggle || siteToggle.contains(e.target)) {
-        siteToggle.checked = !siteToggle.checked;
-        siteToggle.dispatchEvent(new Event('change'));
-      } else {
-        card.classList.toggle('is-collapsed');
-      }
+      if (e.target === siteToggle) return;
+      card.classList.toggle('is-collapsed');
     });
-    siteToggle.addEventListener('change', async () => {
+
+    siteToggle.addEventListener('change', async (e) => {
       const enable = siteToggle.checked;
       if (enable) {
         const ok = await ensurePermission(siteId);
-        if (!ok) { siteToggle.checked = false; return; }
+        if (!ok) {
+          siteToggle.checked = false;
+          return;
+        }
       }
       if (!settings.sites) settings.sites = {};
       if (!settings.sites[siteId]) settings.sites[siteId] = { enabled: true, features: {} };
@@ -315,7 +344,7 @@ function renderSites(settings) {
       refreshHeaderStatus(settings);
     });
 
-    card.querySelectorAll('.feature-row input').forEach(input => {
+    card.querySelectorAll('.feature-toggle').forEach(input => {
       input.addEventListener('change', () => {
         if (!settings.sites[siteId]) settings.sites[siteId] = { enabled: true, features: {} };
         if (!settings.sites[siteId].features) settings.sites[siteId].features = {};
@@ -381,11 +410,12 @@ async function init() {
   for (const siteId of SITE_ORDER) await loadRecipe(siteId);
   const tabs = await new Promise(r => chrome.tabs.query({ active: true, currentWindow: true }, r));
   const tabUrl = tabs[0]?.url || null;
+  const currentSiteId = getSiteIdFromUrl(tabUrl);
   renderActiveSite(settings, tabUrl);
   renderPause(settings);
   renderMaster(settings);
   renderMode(settings);
-  renderSites(settings);
+  renderSites(settings, currentSiteId);
   initOptionsLink();
   renderTimeSaved();
 }

@@ -4,13 +4,14 @@ const DEFAULT_SYNC = {
   enabled: true,
   pauseUntil: 0,
   quietTitle: false,
+  grayscaleMode: false,
   sites: {
-    youtube: { enabled: true, features: {} },
-    reddit: { enabled: true, features: {} },
-    instagram: { enabled: true, features: {} },
-    twitter: { enabled: true, features: {} },
-    facebook: { enabled: true, features: {} },
-    linkedin: { enabled: true, features: {} }
+    youtube: { enabled: true, features: { grayscale: false } },
+    reddit: { enabled: true, features: { grayscale: false } },
+    instagram: { enabled: true, features: { grayscale: false } },
+    twitter: { enabled: true, features: { grayscale: false } },
+    facebook: { enabled: true, features: { grayscale: false } },
+    linkedin: { enabled: true, features: { grayscale: false } }
   },
   mode: 'custom' // work | social | custom
 };
@@ -66,9 +67,31 @@ function updateBadge() {
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync') updateDnrRules();
+  if (area === 'sync') {
+    updateDnrRules();
+    if (changes.enabled || changes.sites || changes.mode) {
+      chrome.storage.sync.get(null, (settings) => {
+        broadcastToAllTabs({ type: 'UPDATE_ATTRIBUTES', payload: settings });
+      });
+    }
+  }
   if (area === 'sync' || area === 'session') updateBadge();
+  if (area === 'session' && changes.pauseUntil) {
+    chrome.storage.sync.get(null, (settings) => {
+      broadcastToAllTabs({ type: 'UPDATE_ATTRIBUTES', payload: settings });
+    });
+  }
 });
+
+function broadcastToAllTabs(msg) {
+  chrome.tabs.query({}, (tabs) => {
+    for (const tab of tabs) {
+      if (tab.id) {
+        chrome.tabs.sendMessage(tab.id, msg).catch(() => {});
+      }
+    }
+  });
+}
 
 async function updateDnrRules() {
   const { enabled, sites } = await chrome.storage.sync.get(['enabled', 'sites']);
@@ -113,25 +136,13 @@ async function updateDnrRules() {
         id: id++,
         priority: 1,
         action: { type: 'redirect', redirect: { url: dmsUrl } },
-        condition: { regexFilter: '^https://[^/]*instagram\\.com/(\\?.*)?$', resourceTypes: ['main_frame'] }
+        condition: { regexFilter: '^https://(www\\.)?instagram\\.com/(\\?.*)?$', resourceTypes: ['main_frame'] }
       });
       rules.push({
         id: id++,
         priority: 1,
         action: { type: 'redirect', redirect: { url: dmsUrl } },
-        condition: { regexFilter: '^https://[^/]*instagram\\.com/home(\\?.*)?$', resourceTypes: ['main_frame'] }
-      });
-      rules.push({
-        id: id++,
-        priority: 1,
-        action: { type: 'redirect', redirect: { url: dmsUrl } },
-        condition: { regexFilter: '^https://[^/]*instagram\\.com/reels', resourceTypes: ['main_frame'] }
-      });
-      rules.push({
-        id: id++,
-        priority: 1,
-        action: { type: 'redirect', redirect: { url: dmsUrl } },
-        condition: { regexFilter: '^https://[^/]*instagram\\.com/explore', resourceTypes: ['main_frame'] }
+        condition: { regexFilter: '^https://(www\\.)?instagram\\.com/(reels|explore|home)/?(\\?.*)?$', resourceTypes: ['main_frame'] }
       });
     } else {
       if (f.hide_reels) {

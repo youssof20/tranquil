@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Tranquil – All-in-One Distraction Remover",
   "short_name": "Tranquil",
-  "version": "1.0.0",
-  "description": "Hide feeds, shorts & distractions on YouTube, Reddit, Instagram, X, Facebook & LinkedIn. One extension, optional pause. No tracking.",
+  "version": "1.0.1",
+  "description": "A clean, focused browsing experience by removing feeds and distractions from popular social platforms.",
   "permissions": [
     "storage",
     "declarativeNetRequest",

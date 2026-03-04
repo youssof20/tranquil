@@ -15,7 +15,8 @@
     { "id": "hide_feed", "label": "Hide main feed", "group": "Feed" },
     { "id": "hide_sidebar", "label": "Hide sidebar", "group": "Feed" },
     { "id": "hide_comments", "label": "Hide comments", "group": "Comments" },
-    { "id": "hide_trending", "label": "Hide r/all & r/popular", "group": "Extras" }
+    { "id": "hide_trending", "label": "Hide r/all & r/popular", "group": "Extras" },
+    { "id": "grayscale", "label": "Grayscale Mode", "group": "Extras" }
   ],
   "rules": [
     { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
@@ -27,7 +28,8 @@
       "shreddit-aspect-ratio",
       "shreddit-carousel",
       ".PostsList",
-      "iframe[name*='subreddit\":\"\"'] ~ div #siteTable"
+      "iframe[name*='subreddit\":\"\"'] ~ div #siteTable",
+      "div:has(> shreddit-post)"
     ]},
     { "featureId": "hide_sidebar", "attribute": "data-tranquil-hide-sidebar", "selectors": [
       "reddit-sidebar",

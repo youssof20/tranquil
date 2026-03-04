@@ -11,17 +11,38 @@
   },
   "features": [
     { "id": "hide_feed", "label": "Hide feed", "group": "Feed" },
-    { "id": "hide_sidebar", "label": "Hide right sidebar", "group": "Feed" }
+    { "id": "hide_sidebar", "label": "Hide right sidebar", "group": "Feed" },
+    { "id": "hide_news", "label": "Hide LinkedIn News", "group": "Feed" },
+    { "id": "hide_suggestions", "label": "Hide Recommendations", "group": "Feed" },
+    { "id": "grayscale", "label": "Grayscale Mode", "group": "Extras" }
   ],
   "rules": [
     { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
       ".feed-shared-update-v2",
       "div[data-testid=\"mainFeed\"]",
       "div[componentkey*=\"mainFeed\"]",
-      ".feed-new-update-pill"
+      ".feed-new-update-pill",
+      ".scaffold-layout__main:has(.feed-shared-update-v2)",
+      "main:has(.feed-shared-update-v2)"
     ]},
     { "featureId": "hide_sidebar", "attribute": "data-tranquil-hide-sidebar", "selectors": [
       ".scaffold-layout__aside"
+    ]},
+    { "featureId": "hide_news", "attribute": "data-tranquil-hide-news", "selectors": [
+      "#feed-news-module",
+      ".feed-shared-news-module"
+    ]},
+    { "featureId": "hide_suggestions", "attribute": "data-tranquil-hide-suggestions", "selectors": [
+      ".pv-profile-section:has(.pv-browsemap-section)",
+      ".pv-browsemap-section",
+      ".feed-shared-community-panel",
+      ".artdeco-card:has(.feed-shared-community-panel)"
     ]}
+  ],
+  "reflow": [
+    {
+      "whenHidden": ["hide_feed"],
+      "css": "html[data-tranquil-hide-feed=\"true\"] .scaffold-layout__main:not(:has(.msg-overlay-container))::after { content: 'Focus on your work. Feed is hidden.'; display: flex; align-items: center; justify-content: center; height: 50vh; font-size: 1.5rem; color: var(--color-text-low-emphasis); font-family: system-ui; text-align: center; padding: 20px; }"
+    }
   ]
 }

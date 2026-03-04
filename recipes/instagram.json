@@ -15,18 +15,28 @@
     { "id": "hide_feed", "label": "Hide feed", "group": "Feed" },
     { "id": "redirect_to_dms", "label": "Messages only (redirect home/reels/explore to DMs)", "group": "Extras" },
     { "id": "hide_reels", "label": "Block Reels", "group": "Extras" },
-    { "id": "hide_explore", "label": "Block Explore", "group": "Extras" }
+    { "id": "hide_explore", "label": "Block Explore", "group": "Extras" },
+    { "id": "hide_stories", "label": "Hide Stories", "group": "Extras" },
+    { "id": "grayscale", "label": "Grayscale Mode", "group": "Extras" }
   ],
   "rules": [
     { "featureId": "hide_feed", "attribute": "data-tranquil-hide-feed", "selectors": [
       "main article",
-      "[data-pagelet=\"FeedPage\"]"
+      "[data-pagelet=\"FeedPage\"]",
+      "main div:has(article)"
     ]},
     { "featureId": "hide_reels", "attribute": "data-tranquil-hide-reels", "selectors": [
-      "a[href*=\"/reels\"]"
+      "a[href*=\"/reels\"]",
+      "svg[aria-label*=\"Reels\"]",
+      "span:contains(\"Reels\")"
     ]},
     { "featureId": "hide_explore", "attribute": "data-tranquil-hide-explore", "selectors": [
-      "a[href*=\"/explore\"]"
+      "a[href*=\"/explore\"]",
+      "svg[aria-label*=\"Explore\"]"
+    ]},
+    { "featureId": "hide_stories", "attribute": "data-tranquil-hide-stories", "selectors": [
+      "div[role=\"menu\"]:has(li[aria-label*=\"Story\"])",
+      "div._aac4._aac5._aac6"
     ]}
   ]
 }
